@@ -32,4 +32,4 @@ resources:
   homepage: http://search.cpan.org/dist/Catalyst-ActionRole-QueryParameter/
   license: http://dev.perl.org/licenses/
   repository: git://github.com/jjn1056/Catalyst-ActionRole-QueryParameters.git
-version: 0.02
+version: 0.03

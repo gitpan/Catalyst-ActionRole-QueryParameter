@@ -1,6 +1,6 @@
 package Catalyst::ActionRole::QueryParameter;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use 5.008008;
 use Moose::Role;
@@ -20,7 +20,7 @@ around 'match', sub {
       my ($not, $attr_param, $op, $cond) =
           ref($_) eq 'ARRAY' ? 
           ($_[0] eq '!' ? (@$_) :(0, @$_)) : 
-          ($_=~m/^(\!?)([^\:]+)\:?(==|eq|!=|<=|>=|>|<|gt|ge|lt|le)?(.*)$/);
+          ($_=~m/^(\!?)([^\:]+)\:?(==|eq|!=|<=|>=|>|=~|<|gt|ge|lt|le)?(.*)$/);
 
       my $req_param = $ctx->req->query_parameters->{$attr_param};
 
@@ -99,14 +99,15 @@ as L<HTML::FormHandler>, L<Data::Manager> or <HTML::FormFu>.)  What it can be
 useful for is when you want to delegate work to various Actions inside your
 Controller based on what the incoming query parameters say.
 
-Generally speaking, its not great form to abuse query parameters this way,
-however I find there is a limited and controlled subset of use cases where this
-feature is valuable.  As a result, the features of this ActionRole are  also
-currently limited to simple defined or undefined checking, and basic Perl
-relational operators.
+Generally speaking, it is not great development practice to abuse query
+parameters this way.  However I find there is a limited and controlled subset
+of use cases where this feature is valuable.  As a result, the features of this
+ActionRole are  also limited to simple defined or undefined checking, and basic
+Perl relational operators.
 
-You can specify multiple QueryParam per Action.  If you do have more than one
-we will try to match Actions that match ALL the given QueryParam attributes.
+You can specify multiple C<QueryParam>s per Action.  If you do have more than
+one we will try to match Actions that match ALL the given C<QueryParam>
+attributes.
 
 There's a functioning L<Catalyst> example application in the test directory for
 your review as well.
@@ -125,7 +126,7 @@ Although you can handle this with conditional logic inside your Action, I find
 the ability to declare what I want from an Action to be one of the more valuable
 aspects of L<Catalyst>.
 
-Here are some example C<QueryParam> attributes and the queries they matchs:
+Here are some example C<QueryParam> attributes and the queries they match:
 
     QueryParam('page')  ## 'page' must exist
     QueryParam('!page')  ## 'page' must NOT exist
@@ -146,7 +147,9 @@ you don't specify a $condition, the default condition is definedness."
 
 A C<$condition> is basically a Perl relational operator followed by a value.
 Relation Operators we current support: C<< ==,eq,>,<,!=,<=,>=,gt,ge,lt,le >>.
-For documentation on Perl Relational Operators see: C<perldoc perlop>.
+In addition, we support the regular expression match operator C<=~>. For
+documentation on Perl Relational Operators see: C<perldoc perlop>.  For 
+documentation on Perl Regular Expressions see C<perldoc perlre>.
 
 The condition will be wrapped in an C<eval> and any exceptions generated will
 be taken to mean the pattern has not matched.
@@ -215,24 +218,24 @@ of the Controller file) and least specific or default actions LAST.
 
 For example:
 
-sub root : Chained('/') PathPrefix CaptureArgs(0) {}
+    sub root : Chained('/') PathPrefix CaptureArgs(0) {}
 
-  sub page_and_row
-  : Chained('root') PathPart('') QueryParam('page') QueryParam('row') Args(0)
-  {
-    my ($self, $ctx) = @_;
-    $ctx->response->body('page_and_row');
-  }
+      sub page_and_row
+      : Chained('root') PathPart('') QueryParam('page') QueryParam('row') Args(0)
+      {
+        my ($self, $ctx) = @_;
+        $ctx->response->body('page_and_row');
+      }
 
-  sub page : Chained('root') PathPart('')  QueryParam('page') Args(0)  {
-    my ($self, $ctx) = @_;
-    $ctx->response->body('page');
-  }
+      sub page : Chained('root') PathPart('')  QueryParam('page') Args(0)  {
+        my ($self, $ctx) = @_;
+        $ctx->response->body('page');
+      }
 
-  sub no_query : Chained('root') PathPart('') Args(0)  {
-    my ($self, $ctx) = @_;
-    $ctx->response->body('no_query');
-  }
+      sub no_query : Chained('root') PathPart('') Args(0)  {
+        my ($self, $ctx) = @_;
+        $ctx->response->body('no_query');
+      }
 
 
 The test suite has a working example of this for your review.
@@ -243,7 +246,7 @@ John Napiorkowski L<email:jjnapiork@cpan.org>
 
 =head1 SEE ALSO
 
-L<Catalyst>, L<Catalyst::Controller::ActionRole>, L<Moose>, L<Try::Tiny>.
+L<Catalyst>, L<Catalyst::Controller::ActionRole>, L<Moose>.
 
 =head1 COPYRIGHT & LICENSE
 
