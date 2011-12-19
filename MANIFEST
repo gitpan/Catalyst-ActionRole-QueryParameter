@@ -24,5 +24,6 @@ t/lib/TestApp.pm
 t/lib/TestApp/Controller/Chained.pm
 t/lib/TestApp/Controller/Conditions.pm
 t/lib/TestApp/Controller/Configuration.pm
+t/lib/TestApp/Controller/MatchCaptures.pm
 t/lib/TestApp/Controller/Root.pm
 t/use.t
